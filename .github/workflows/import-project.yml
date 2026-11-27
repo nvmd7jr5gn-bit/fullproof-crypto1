@@ -1,1 +1,34 @@
 
+name: Import FullProof Crypto project
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Extract project archive
+        run: |
+          test -f fullproof_crypto_github_upload.zip
+          mkdir -p /tmp/fullproof-import
+          unzip -q fullproof_crypto_github_upload.zip -d /tmp/fullproof-import
+          cp -R /tmp/fullproof-import/fullproof_crypto/. .
+          rm fullproof_crypto_github_upload.zip
+
+      - name: Commit project files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Import FullProof Crypto starter project"
+            git push
+          fi
+
